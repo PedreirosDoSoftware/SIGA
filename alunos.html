@@ -16,13 +16,12 @@
                 <h1>SIGA</h1>
             </div>
             
-     <nav>
+            <nav>
                 <ul>
-                    <li class="active"><a href="tela-inicial.php"><i class="fas fa-home"></i> Principal</a></li>
-                    <li><a href="alunos.html"><i class="fas fa-users"></i> Alunos</a></li>
+                    <li><a href="tela-inicial.php"><i class="fas fa-home"></i> Principal</a></li>
+                    <li class="active"><a href="alunos.html"><i class="fas fa-users"></i> Alunos</a></li>
                     <li><a href="turmas.html"><i class="fas fa-book"></i> Turmas</a></li>
-                    <li><a href="recomendacoes.html"><i class="fas fa-lightbulb"></i> Recomendações</a>
-                    </li>
+                    <li><a href="recomendacoes.html"><i class="fas fa-lightbulb"></i> Recomendações</a></li>
                 </ul>
             </nav>
             
@@ -34,7 +33,6 @@
             </div>
         </aside>
 
-        
         <main class="content">
             <header class="header">
                 <h2><i class="fas fa-users"></i> Gestão de Alunos</h2>
@@ -52,7 +50,7 @@
                     </div>
                     <div class="card-info">
                         <h3>Total de Alunos</h3>
-                        <p>120</p>
+                        <p id="total-alunos">0</p>
                     </div>
                 </div>
                 
@@ -62,7 +60,7 @@
                     </div>
                     <div class="card-info">
                         <h3>Alunos Ativos</h3>
-                        <p>108</p>
+                        <p id="alunos-ativos">0</p>
                     </div>
                 </div>
                 
@@ -72,7 +70,7 @@
                     </div>
                     <div class="card-info">
                         <h3>Média Geral</h3>
-                        <p>7.8</p>
+                        <p id="media-geral">0.0</p>
                     </div>
                 </div>
             </section>
@@ -95,81 +93,14 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>2023001</td>
-                            <td>João Silva</td>
-                            <td>3º Ano A</td>
-                            <td>8.5</td>
-                            <td>7.0</td>
-                            <td>9.0</td>
-                            <td>8.2</td>
-                            <td><span class="status active">Ativo</span></td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2023002</td>
-                            <td>Maria Oliveira</td>
-                            <td>2º Ano B</td>
-                            <td>9.0</td>
-                            <td>9.5</td>
-                            <td>8.5</td>
-                            <td>9.0</td>
-                            <td><span class="status active">Ativo</span></td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2023003</td>
-                            <td>Carlos Souza</td>
-                            <td>1º Ano C</td>
-                            <td>6.5</td>
-                            <td>7.0</td>
-                            <td>5.5</td>
-                            <td>6.3</td>
-                            <td><span class="status active">Ativo</span></td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2023004</td>
-                            <td>Ana Santos</td>
-                            <td>3º Ano A</td>
-                            <td>7.5</td>
-                            <td>8.0</td>
-                            <td>9.0</td>
-                            <td>8.2</td>
-                            <td><span class="status inactive">Inativo</span></td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2023005</td>
-                            <td>Pedro Costa</td>
-                            <td>2º Ano B</td>
-                            <td>5.0</td>
-                            <td>6.5</td>
-                            <td>7.0</td>
-                            <td>6.2</td>
-                            <td><span class="status active">Ativo</span></td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
+                    <tbody id="tabela-alunos">
+                        <!-- Linhas serão adicionadas dinamicamente via JavaScript -->
                     </tbody>
                 </table>
             </section>
         </main>
     </div>
+
+    <script src="alunos.js"></script>
 </body>
 </html>
