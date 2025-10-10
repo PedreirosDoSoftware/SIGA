@@ -94,7 +94,7 @@ export default function RelatoriosPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 bg-green-500 rounded"></div>
-                  <span>Aprovados (≥ 7.0)</span>
+                  <span>Aprovados (+ 7.0)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold">{alunosAprovados}</span>
@@ -122,7 +122,7 @@ export default function RelatoriosPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 bg-red-500 rounded"></div>
-                  <span>Reprovados (&lt; 5.0)</span>
+                  <span>Reprovados (- 5.0)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold">{alunosReprovados}</span>

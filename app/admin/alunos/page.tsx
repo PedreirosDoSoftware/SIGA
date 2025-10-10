@@ -168,7 +168,7 @@ export default function AlunosPage() {
                   <Input
                     id="matricula"
                     value={formData.matricula}
-                    onChange={(e) => setFormData({ ...formData, matricula: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, matricula: e.target.value })}                    
                     required
                   />
                 </div>
