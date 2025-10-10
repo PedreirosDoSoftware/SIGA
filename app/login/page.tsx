@@ -130,13 +130,7 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg text-xs text-gray-600">
-            <p className="font-semibold mb-2">Usuários de teste:</p>
-            <p>Admin: admin@siga.com / 123456</p>
-            <p>Professor: professor@siga.com / 123456</p>
-            <p>Aluno: aluno@siga.com / 123456</p>
-            <p>Pedagogia: pedagogia@siga.com / 123456</p>
-          </div>
+          
         </CardContent>
       </Card>
     </div>

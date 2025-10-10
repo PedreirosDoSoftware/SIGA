@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import {
@@ -27,10 +27,42 @@ interface SidebarProps {
 }
 
 export function Sidebar({ userType }: SidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(true)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout>()
   const router = useRouter()
   const pathname = usePathname()
+
+  // Recolher automaticamente após 3 segundos de inatividade
+  useEffect(() => {
+    if (isHovered || isMobileOpen) return
+
+    timeoutRef.current = setTimeout(() => {
+      setIsCollapsed(true)
+    }, 3000)
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [isHovered, isMobileOpen])
+
+  const handleMouseEnter = () => {
+    setIsHovered(true)
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    setIsCollapsed(false)
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovered(false)
+    timeoutRef.current = setTimeout(() => {
+      setIsCollapsed(true)
+    }, 500)
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("usuario")
@@ -95,16 +127,25 @@ export function Sidebar({ userType }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen bg-slate-800 text-white transition-all duration-300",
+          "fixed left-0 top-0 z-40 h-screen bg-slate-800 text-white transition-all duration-300 border-r border-slate-700",
           isCollapsed ? "w-16" : "w-64",
           isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         )}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex items-center gap-3 p-4 border-b border-slate-700">
             <GraduationCap className="h-8 w-8 text-blue-400 flex-shrink-0" />
-            {!isCollapsed && <h1 className="text-xl font-bold">SIGA</h1>}
+            <h1 
+              className={cn(
+                "text-xl font-bold transition-opacity duration-300 whitespace-nowrap",
+                isCollapsed && "opacity-0 w-0 overflow-hidden"
+              )}
+            >
+              SIGA
+            </h1>
           </div>
 
           {/* Navigation */}
@@ -117,14 +158,21 @@ export function Sidebar({ userType }: SidebarProps) {
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+                        "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors",
                         isActive ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-700 hover:text-white",
                         isCollapsed && "justify-center",
                       )}
                       onClick={() => setIsMobileOpen(false)}
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
-                      {!isCollapsed && <span>{item.label}</span>}
+                      <span 
+                        className={cn(
+                          "transition-opacity duration-300 whitespace-nowrap",
+                          isCollapsed && "opacity-0 w-0 overflow-hidden"
+                        )}
+                      >
+                        {item.label}
+                      </span>
                     </Link>
                   </li>
                 )
@@ -143,25 +191,20 @@ export function Sidebar({ userType }: SidebarProps) {
               onClick={handleLogout}
             >
               <LogOut className="h-5 w-5 flex-shrink-0" />
-              {!isCollapsed && <span className="ml-3">Sair</span>}
-            </Button>
-          </div>
-
-          {/* Collapse button - desktop only */}
-          <div className="hidden md:block p-2 border-t border-slate-700">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full text-slate-400 hover:text-white"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-            >
-              {isCollapsed ? "→" : "←"}
+              <span 
+                className={cn(
+                  "transition-opacity duration-300 whitespace-nowrap",
+                  isCollapsed && "opacity-0 w-0 overflow-hidden"
+                )}
+              >
+                Sair
+              </span>
             </Button>
           </div>
         </div>
       </aside>
 
-      {/* Mobile overlay */}
+      {/* Apenas overlay mobile */}
       {isMobileOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden" onClick={() => setIsMobileOpen(false)} />
       )}

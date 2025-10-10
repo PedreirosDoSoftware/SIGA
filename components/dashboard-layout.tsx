@@ -46,10 +46,14 @@ export function DashboardLayout({ children, userType }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
       <Sidebar userType={userType} />
-      <main className="md:ml-64 transition-all duration-300">
-        <div className="p-4 md:p-6 pt-16 md:pt-6">{children}</div>
+      
+      {/* Conteúdo principal */}
+      <main className="min-h-screen p-4 md:p-6 pt-16 md:pt-6 md:ml-16 transition-all duration-300">
+        <div className="max-w-7xl mx-auto">
+          {children}
+        </div>
       </main>
     </div>
   )
