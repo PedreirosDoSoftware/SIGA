@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Users, UserPlus, Search, Edit, Trash2, Save, X } from "lucide-react"
 import { DashboardLayout } from "@/components/dashboard-layout"
@@ -11,27 +9,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-
-interface Aluno {
-  id: string
-  matricula: string
-  nome: string
-  turma: string
-  nota1: number
-  nota2: number
-  nota3: number
-  media: number
-  status: string
-}
+import { supabase } from "@/lib/supabase"
+import type { Aluno } from "@/lib/supabase/types/database"
 
 export default function AlunosPage() {
   const [alunos, setAlunos] = useState<Aluno[]>([])
@@ -48,15 +29,21 @@ export default function AlunosPage() {
   })
 
   useEffect(() => {
-    const alunosData = localStorage.getItem("alunos")
-    if (alunosData) {
-      setAlunos(JSON.parse(alunosData))
-    }
+    loadAlunos()
   }, [])
 
-  const saveAlunos = (newAlunos: Aluno[]) => {
-    setAlunos(newAlunos)
-    localStorage.setItem("alunos", JSON.stringify(newAlunos))
+  const loadAlunos = async () => {
+    const { data, error } = await supabase
+      .from('alunos')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Erro ao carregar alunos:', error)
+      return
+    }
+
+    setAlunos(data || [])
   }
 
   const calcularMedia = (nota1: number, nota2: number, nota3: number) => {
@@ -69,31 +56,37 @@ export default function AlunosPage() {
     return "Reprovado"
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     const media = calcularMedia(formData.nota1, formData.nota2, formData.nota3)
     const status = determinarStatus(media)
 
-    if (editingAluno) {
-      // Editando aluno existente
-      const updatedAlunos = alunos.map((aluno) =>
-        aluno.id === editingAluno.id ? { ...formData, id: editingAluno.id, media, status } : aluno,
-      )
-      saveAlunos(updatedAlunos)
-    } else {
-      // Adicionando novo aluno
-      const novoAluno: Aluno = {
-        id: Date.now().toString(),
-        ...formData,
-        media,
-        status,
-      }
-      saveAlunos([...alunos, novoAluno])
-    }
+    try {
+      if (editingAluno) {
+        // Atualizar aluno existente
+        const { error } = await supabase
+          .from('alunos')
+          .update({ ...formData, media, status })
+          .eq('id', editingAluno.id)
 
-    resetForm()
-    setIsDialogOpen(false)
+        if (error) throw error
+      } else {
+        // Criar novo aluno
+        const { error } = await supabase
+          .from('alunos')
+          .insert([{ ...formData, media, status }])
+
+        if (error) throw error
+      }
+
+      await loadAlunos()
+      resetForm()
+      setIsDialogOpen(false)
+    } catch (error) {
+      console.error('Erro ao salvar aluno:', error)
+      alert('Erro ao salvar aluno')
+    }
   }
 
   const handleEdit = (aluno: Aluno) => {
@@ -109,10 +102,20 @@ export default function AlunosPage() {
     setIsDialogOpen(true)
   }
 
-  const handleDelete = (id: string) => {
-    if (confirm("Tem certeza que deseja remover este aluno?")) {
-      const updatedAlunos = alunos.filter((aluno) => aluno.id !== id)
-      saveAlunos(updatedAlunos)
+  const handleDelete = async (id: string) => {
+    if (!confirm("Tem certeza que deseja remover este aluno?")) return
+
+    try {
+      const { error } = await supabase
+        .from('alunos')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+      await loadAlunos()
+    } catch (error) {
+      console.error('Erro ao deletar aluno:', error)
+      alert('Erro ao remover aluno')
     }
   }
 

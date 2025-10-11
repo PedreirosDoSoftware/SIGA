@@ -1,126 +1,133 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Edit, Save, Search, Users } from "lucide-react"
+import { useState, useEffect } from "react"
+import { BarChart3, Save, Search } from "lucide-react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { getAlunos, updateAluno } from "@/lib/supabase/database"
 
 export default function ProfessorNotasPage() {
   const [alunos, setAlunos] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [editingAluno, setEditingAluno] = useState<string | null>(null)
-  const [tempNotas, setTempNotas] = useState<any>({})
+  const [notasEditadas, setNotasEditadas] = useState<{[key: string]: {nota1: number; nota2: number; nota3: number}}>({})
 
   useEffect(() => {
-    const alunosData = localStorage.getItem("alunos")
-    if (alunosData) {
-      setAlunos(JSON.parse(alunosData))
-    }
+    loadAlunos()
   }, [])
+
+  const loadAlunos = async () => {
+    try {
+      const alunosData = await getAlunos()
+      setAlunos(alunosData)
+      
+      // Inicializar notas editadas
+      const initialNotas: any = {}
+      alunosData.forEach(aluno => {
+        initialNotas[aluno.id] = {
+          nota1: aluno.nota1,
+          nota2: aluno.nota2,
+          nota3: aluno.nota3
+        }
+      })
+      setNotasEditadas(initialNotas)
+    } catch (error) {
+      console.error('Erro ao carregar alunos:', error)
+    }
+  }
+
+  const handleEdit = (alunoId: string) => {
+    setEditingAluno(alunoId)
+  }
+
+  const handleNotaChange = (alunoId: string, nota: 'nota1' | 'nota2' | 'nota3', value: string) => {
+    const numValue = parseFloat(value) || 0
+    setNotasEditadas(prev => ({
+      ...prev,
+      [alunoId]: {
+        ...prev[alunoId],
+        [nota]: numValue
+      }
+    }))
+  }
+
+  const handleSave = async (alunoId: string) => {
+    try {
+      const notas = notasEditadas[alunoId]
+      await updateAluno(alunoId, {
+        nota1: notas.nota1,
+        nota2: notas.nota2,
+        nota3: notas.nota3
+      })
+      
+      setEditingAluno(null)
+      await loadAlunos() // Recarregar para atualizar médias
+    } catch (error) {
+      console.error('Erro ao salvar notas:', error)
+      alert('Erro ao salvar notas')
+    }
+  }
+
+  const handleCancel = (alunoId: string) => {
+    setEditingAluno(null)
+    // Restaurar notas originais
+    const aluno = alunos.find(a => a.id === alunoId)
+    if (aluno) {
+      setNotasEditadas(prev => ({
+        ...prev,
+        [alunoId]: {
+          nota1: aluno.nota1,
+          nota2: aluno.nota2,
+          nota3: aluno.nota3
+        }
+      }))
+    }
+  }
 
   const filteredAlunos = alunos.filter(
     (aluno) =>
       aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      aluno.matricula.includes(searchTerm) ||
-      aluno.turma.toLowerCase().includes(searchTerm.toLowerCase()),
+      aluno.turma.toLowerCase().includes(searchTerm.toLowerCase())
   )
-
-  const calcularMedia = (nota1: number, nota2: number, nota3: number) => {
-    return (nota1 + nota2 + nota3) / 3
-  }
-
-  const determinarStatus = (media: number) => {
-    if (media >= 7) return "Aprovado"
-    if (media >= 5) return "Recuperação"
-    return "Reprovado"
-  }
-
-  const iniciarEdicao = (aluno: any) => {
-    setEditingAluno(aluno.id)
-    setTempNotas({
-      nota1: aluno.nota1,
-      nota2: aluno.nota2,
-      nota3: aluno.nota3,
-    })
-  }
-
-  const cancelarEdicao = () => {
-    setEditingAluno(null)
-    setTempNotas({})
-  }
-
-  const salvarNotas = (alunoId: string) => {
-    const updatedAlunos = alunos.map((aluno) => {
-      if (aluno.id === alunoId) {
-        const media = calcularMedia(tempNotas.nota1, tempNotas.nota2, tempNotas.nota3)
-        const status = determinarStatus(media)
-        return {
-          ...aluno,
-          nota1: tempNotas.nota1,
-          nota2: tempNotas.nota2,
-          nota3: tempNotas.nota3,
-          media,
-          status,
-        }
-      }
-      return aluno
-    })
-
-    setAlunos(updatedAlunos)
-    localStorage.setItem("alunos", JSON.stringify(updatedAlunos))
-    setEditingAluno(null)
-    setTempNotas({})
-  }
-
-  const handleNotaChange = (campo: string, valor: string) => {
-    const nota = Number.parseFloat(valor) || 0
-    if (nota >= 0 && nota <= 10) {
-      setTempNotas({ ...tempNotas, [campo]: nota })
-    }
-  }
 
   return (
     <DashboardLayout userType="professor">
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Editar Notas</h1>
-          <p className="text-gray-600">Gerencie as notas dos seus alunos</p>
+          <p className="text-gray-600">Atualize as notas dos alunos</p>
         </div>
 
-        {/* Busca */}
-        <div className="flex items-center space-x-2">
-          <Search className="h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Buscar por nome, matrícula ou turma..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm"
-          />
-        </div>
-
-        {/* Tabela de Notas */}
         <Card>
           <CardHeader>
             <CardTitle>Notas dos Alunos</CardTitle>
-            <CardDescription>Clique em "Editar" para modificar as notas</CardDescription>
+            <CardDescription>Edite as notas e o sistema calculará automaticamente a média</CardDescription>
+            <div className="flex items-center space-x-2">
+              <Search className="h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Buscar por nome ou turma..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
           </CardHeader>
           <CardContent>
             {filteredAlunos.length === 0 ? (
               <div className="text-center py-8">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500">
-                  {alunos.length === 0 ? "Nenhum aluno encontrado" : "Nenhum aluno corresponde à busca"}
+                  {alunos.length === 0 ? "Nenhum aluno cadastrado" : "Nenhum aluno encontrado"}
                 </p>
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Matrícula</TableHead>
                     <TableHead>Nome</TableHead>
                     <TableHead>Turma</TableHead>
                     <TableHead>Nota 1</TableHead>
@@ -134,9 +141,10 @@ export default function ProfessorNotasPage() {
                 <TableBody>
                   {filteredAlunos.map((aluno) => (
                     <TableRow key={aluno.id}>
-                      <TableCell className="font-medium">{aluno.matricula}</TableCell>
-                      <TableCell>{aluno.nome}</TableCell>
+                      <TableCell className="font-medium">{aluno.nome}</TableCell>
                       <TableCell>{aluno.turma}</TableCell>
+                      
+                      {/* Nota 1 */}
                       <TableCell>
                         {editingAluno === aluno.id ? (
                           <Input
@@ -144,14 +152,16 @@ export default function ProfessorNotasPage() {
                             min="0"
                             max="10"
                             step="0.1"
-                            value={tempNotas.nota1}
-                            onChange={(e) => handleNotaChange("nota1", e.target.value)}
+                            value={notasEditadas[aluno.id]?.nota1 || 0}
+                            onChange={(e) => handleNotaChange(aluno.id, 'nota1', e.target.value)}
                             className="w-20"
                           />
                         ) : (
                           aluno.nota1.toFixed(1)
                         )}
                       </TableCell>
+                      
+                      {/* Nota 2 */}
                       <TableCell>
                         {editingAluno === aluno.id ? (
                           <Input
@@ -159,14 +169,16 @@ export default function ProfessorNotasPage() {
                             min="0"
                             max="10"
                             step="0.1"
-                            value={tempNotas.nota2}
-                            onChange={(e) => handleNotaChange("nota2", e.target.value)}
+                            value={notasEditadas[aluno.id]?.nota2 || 0}
+                            onChange={(e) => handleNotaChange(aluno.id, 'nota2', e.target.value)}
                             className="w-20"
                           />
                         ) : (
                           aluno.nota2.toFixed(1)
                         )}
                       </TableCell>
+                      
+                      {/* Nota 3 */}
                       <TableCell>
                         {editingAluno === aluno.id ? (
                           <Input
@@ -174,59 +186,45 @@ export default function ProfessorNotasPage() {
                             min="0"
                             max="10"
                             step="0.1"
-                            value={tempNotas.nota3}
-                            onChange={(e) => handleNotaChange("nota3", e.target.value)}
+                            value={notasEditadas[aluno.id]?.nota3 || 0}
+                            onChange={(e) => handleNotaChange(aluno.id, 'nota3', e.target.value)}
                             className="w-20"
                           />
                         ) : (
                           aluno.nota3.toFixed(1)
                         )}
                       </TableCell>
-                      <TableCell className="font-semibold">
-                        {editingAluno === aluno.id
-                          ? calcularMedia(tempNotas.nota1, tempNotas.nota2, tempNotas.nota3).toFixed(1)
-                          : aluno.media.toFixed(1)}
-                      </TableCell>
+                      
+                      <TableCell className="font-semibold">{aluno.media.toFixed(1)}</TableCell>
                       <TableCell>
                         <Badge
                           variant={
-                            editingAluno === aluno.id
-                              ? determinarStatus(calcularMedia(tempNotas.nota1, tempNotas.nota2, tempNotas.nota3)) ===
-                                "Aprovado"
-                                ? "default"
-                                : determinarStatus(calcularMedia(tempNotas.nota1, tempNotas.nota2, tempNotas.nota3)) ===
-                                    "Recuperação"
-                                  ? "secondary"
-                                  : "destructive"
-                              : aluno.status === "Aprovado"
-                                ? "default"
-                                : aluno.status === "Recuperação"
-                                  ? "secondary"
-                                  : "destructive"
+                            aluno.status === "Aprovado"
+                              ? "default"
+                              : aluno.status === "Recuperação"
+                                ? "secondary"
+                                : "destructive"
                           }
                         >
-                          {editingAluno === aluno.id
-                            ? determinarStatus(calcularMedia(tempNotas.nota1, tempNotas.nota2, tempNotas.nota3))
-                            : aluno.status}
+                          {aluno.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex space-x-2">
-                          {editingAluno === aluno.id ? (
-                            <>
-                              <Button variant="default" size="sm" onClick={() => salvarNotas(aluno.id)}>
-                                <Save className="h-4 w-4" />
-                              </Button>
-                              <Button variant="outline" size="sm" onClick={cancelarEdicao}>
-                                Cancelar
-                              </Button>
-                            </>
-                          ) : (
-                            <Button variant="ghost" size="sm" onClick={() => iniciarEdicao(aluno)}>
-                              <Edit className="h-4 w-4" />
+                        {editingAluno === aluno.id ? (
+                          <div className="flex space-x-2">
+                            <Button size="sm" onClick={() => handleSave(aluno.id)}>
+                              <Save className="h-3 w-3 mr-1" />
+                              Salvar
                             </Button>
-                          )}
-                        </div>
+                            <Button size="sm" variant="outline" onClick={() => handleCancel(aluno.id)}>
+                              Cancelar
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button size="sm" onClick={() => handleEdit(aluno.id)}>
+                            Editar
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
