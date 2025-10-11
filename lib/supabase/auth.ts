@@ -42,5 +42,12 @@ export async function getCurrentUser() {
     .from('usuarios')
     .select('*')
     .eq('id', session.user.id)
-    .single
+    .single()
+
+  if (error) {
+    console.error('Erro ao buscar usuário:', error)
+    return null
+  }
+
+  return user
 }
