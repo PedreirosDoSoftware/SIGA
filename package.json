@@ -2,9 +2,9 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
- "scripts": {
+  "scripts": {
     "dev": "next dev",
-    "build": "next build", 
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "test": "npx jest --preset=ts-jest --testEnvironment=jsdom --setupFilesAfterEnv=src/setupTests.ts --testPathIgnorePatterns='<rootDir>/.next/,<rootDir>/node_modules/'",
@@ -80,6 +80,4 @@
     "tw-animate-css": "1.3.3",
     "typescript": "^5"
   }
-  
-
 }
