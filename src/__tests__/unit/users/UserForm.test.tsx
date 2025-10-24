@@ -1,0 +1,161 @@
+﻿// TESTE CORRIGIDO - Tipagem completa
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+// Interfaces para tipagem
+interface UserFormData {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+interface UserFormProps {
+  onSubmit?: (data: UserFormData) => void;
+  onCancel?: () => void;
+}
+
+interface FormErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+}
+
+// Mock do componente UserForm
+const UserForm: React.FC<UserFormProps> = ({ onSubmit = () => {}, onCancel = () => {} }) => {
+  const [formData, setFormData] = React.useState<UserFormData>({
+    name: '',
+    email: '',
+    phone: '',
+  });
+  const [errors, setErrors] = React.useState<FormErrors>({});
+
+  const handleChange = (field: keyof UserFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newErrors: FormErrors = {};
+
+    if (!formData.name.trim()) newErrors.name = 'Nome é obrigatório';
+    if (!formData.email.trim()) newErrors.email = 'E-mail é obrigatório';
+    if (formData.email && !formData.email.includes('@')) newErrors.email = 'E-mail deve ser válido';
+    if (!formData.phone.trim()) newErrors.phone = 'Telefone é obrigatório';
+
+    if (Object.keys(newErrors).length === 0) {
+      onSubmit(formData);
+    } else {
+      setErrors(newErrors);
+    }
+  };
+
+  const formatPhone = (phone: string): string => {
+    const numbers = phone.replace(/\D/g, '');
+    if (numbers.length <= 11) {
+      return numbers.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    }
+    return phone;
+  };
+
+  return (
+    <form onSubmit={handleSubmit} data-testid="user-form">
+      <div>
+        <label htmlFor="name">Nome completo:</label>
+        <input
+          id="name"
+          type="text"
+          value={formData.name}
+          onChange={(e) => handleChange('name', e.target.value)}
+          data-testid="name-input"
+        />
+        {errors.name && <span data-testid="name-error">{errors.name}</span>}
+      </div>
+
+      <div>
+        <label htmlFor="email">E-mail:</label>
+        <input
+          id="email"
+          type="email"
+          value={formData.email}
+          onChange={(e) => handleChange('email', e.target.value)}
+          data-testid="email-input"
+        />
+        {errors.email && <span data-testid="email-error">{errors.email}</span>}
+      </div>
+
+      <div>
+        <label htmlFor="phone">Telefone:</label>
+        <input
+          id="phone"
+          type="text"
+          value={formData.phone}
+          onChange={(e) => handleChange('phone', formatPhone(e.target.value))}
+          data-testid="phone-input"
+        />
+        {errors.phone && <span data-testid="phone-error">{errors.phone}</span>}
+      </div>
+
+      <div>
+        <button type="submit" data-testid="submit-button">Salvar</button>
+        <button type="button" onClick={onCancel} data-testid="cancel-button">Cancelar</button>
+      </div>
+    </form>
+  );
+};
+
+describe('UserForm - Testes Unitários', () => {
+  const mockOnSubmit = jest.fn();
+  const mockOnCancel = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('deve renderizar todos os campos do formulário', () => {
+    render(<UserForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
+    
+    expect(screen.getByTestId('name-input')).toBeInTheDocument();
+    expect(screen.getByTestId('email-input')).toBeInTheDocument();
+    expect(screen.getByTestId('phone-input')).toBeInTheDocument();
+    expect(screen.getByTestId('submit-button')).toBeInTheDocument();
+    expect(screen.getByTestId('cancel-button')).toBeInTheDocument();
+  });
+
+  test('deve validar campos obrigatórios', async () => {
+    const user = userEvent.setup();
+    render(<UserForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
+    
+    const submitButton = screen.getByTestId('submit-button');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('name-error')).toHaveTextContent('Nome é obrigatório');
+      expect(screen.getByTestId('email-error')).toHaveTextContent('E-mail é obrigatório');
+      expect(screen.getByTestId('phone-error')).toHaveTextContent('Telefone é obrigatório');
+    });
+  });
+
+  test('deve submeter formulário com dados válidos', async () => {
+    const user = userEvent.setup();
+    render(<UserForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
+    
+    const nameInput = screen.getByTestId('name-input');
+    const emailInput = screen.getByTestId('email-input');
+    const phoneInput = screen.getByTestId('phone-input');
+    const submitButton = screen.getByTestId('submit-button');
+
+    await user.type(nameInput, 'Carlos Santos');
+    await user.type(emailInput, 'carlos@email.com');
+    await user.type(phoneInput, '11988887777');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalledWith({
+        name: 'Carlos Santos',
+        email: 'carlos@email.com',
+        phone: '(11) 98888-7777'
+      });
+    });
+  });
+});

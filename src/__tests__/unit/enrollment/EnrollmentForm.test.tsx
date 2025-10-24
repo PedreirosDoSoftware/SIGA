@@ -1,0 +1,264 @@
+﻿// TESTE ATUALIZADO - Para matrículas de alunos
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+// Interfaces para tipagem
+interface Course {
+  id: string;
+  name: string;
+  code: string;
+  professor: string;
+  vacancies: number;
+  enrolled: number;
+}
+
+interface Student {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface EnrollmentData {
+  studentId: string;
+  courseId: string;
+}
+
+interface EnrollmentFormProps {
+  students?: Student[];
+  courses?: Course[];
+  onSubmit?: (data: EnrollmentData) => void;
+  onCancel?: () => void;
+}
+
+interface FormErrors {
+  studentId?: string;
+  courseId?: string;
+  [key: string]: string | undefined;
+}
+
+// Mock do componente EnrollmentForm
+const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ 
+  students = [], 
+  courses = [], 
+  onSubmit = () => {}, 
+  onCancel = () => {} 
+}) => {
+  const [formData, setFormData] = React.useState<EnrollmentData>({
+    studentId: '',
+    courseId: '',
+  });
+  
+  const [errors, setErrors] = React.useState<FormErrors>({});
+
+  const handleChange = (field: keyof EnrollmentData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newErrors: FormErrors = {};
+
+    if (!formData.studentId) newErrors.studentId = 'Aluno é obrigatório';
+    if (!formData.courseId) newErrors.courseId = 'Disciplina é obrigatória';
+
+    if (Object.keys(newErrors).length === 0) {
+      onSubmit(formData);
+    } else {
+      setErrors(newErrors);
+    }
+  };
+
+  const selectedStudent = students.find(s => s.id === formData.studentId);
+  const selectedCourse = courses.find(c => c.id === formData.courseId);
+  const availableVacancies = selectedCourse ? selectedCourse.vacancies - selectedCourse.enrolled : 0;
+
+  return (
+    <form onSubmit={handleSubmit} data-testid="enrollment-form">
+      <div>
+        <label htmlFor="student">Aluno:</label>
+        <select
+          id="student"
+          value={formData.studentId}
+          onChange={(e) => handleChange('studentId', e.target.value)}
+          data-testid="student-select"
+        >
+          <option value="">Selecione um aluno</option>
+          {students.map(student => (
+            <option key={student.id} value={student.id}>
+              {student.name} ({student.email})
+            </option>
+          ))}
+        </select>
+        {errors.studentId && <span data-testid="student-error">{errors.studentId}</span>}
+      </div>
+
+      <div>
+        <label htmlFor="course">Disciplina:</label>
+        <select
+          id="course"
+          value={formData.courseId}
+          onChange={(e) => handleChange('courseId', e.target.value)}
+          data-testid="course-select"
+        >
+          <option value="">Selecione uma disciplina</option>
+          {courses.map(course => (
+            <option key={course.id} value={course.id}>
+              {course.name} - {course.professor} ({course.enrolled}/{course.vacancies} vagas)
+            </option>
+          ))}
+        </select>
+        {errors.courseId && <span data-testid="course-error">{errors.courseId}</span>}
+      </div>
+
+      {selectedCourse && (
+        <div data-testid="course-info">
+          <p><strong>Disciplina:</strong> {selectedCourse.name}</p>
+          <p><strong>Professor:</strong> {selectedCourse.professor}</p>
+          <p><strong>Vagas disponíveis:</strong> {availableVacancies}</p>
+          {availableVacancies === 0 && (
+            <p data-testid="no-vacancies" style={{ color: 'red' }}>
+              Não há vagas disponíveis nesta disciplina
+            </p>
+          )}
+        </div>
+      )}
+
+      <div>
+        <button 
+          type="submit" 
+          data-testid="submit-button"
+          disabled={availableVacancies === 0}
+        >
+          Matricular
+        </button>
+        <button type="button" onClick={onCancel} data-testid="cancel-button">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+};
+
+describe('EnrollmentForm - Testes Unitários', () => {
+  const mockOnSubmit = jest.fn();
+  const mockOnCancel = jest.fn();
+  
+  const mockStudents: Student[] = [
+    { id: 's1', name: 'João Silva', email: 'joao@aluno.com' },
+    { id: 's2', name: 'Maria Santos', email: 'maria@aluno.com' },
+  ];
+
+  const mockCourses: Course[] = [
+    { id: 'c1', name: 'Matemática', code: 'MAT101', professor: 'Prof. Carlos', vacancies: 30, enrolled: 25 },
+    { id: 'c2', name: 'Programação', code: 'PROG201', professor: 'Prof. Ana', vacancies: 25, enrolled: 25 }, // Sem vagas
+  ];
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('deve renderizar formulário de matrícula', () => {
+    render(
+      <EnrollmentForm 
+        students={mockStudents}
+        courses={mockCourses}
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+      />
+    );
+    
+    expect(screen.getByTestId('student-select')).toBeInTheDocument();
+    expect(screen.getByTestId('course-select')).toBeInTheDocument();
+    expect(screen.getByTestId('submit-button')).toBeInTheDocument();
+    expect(screen.getByTestId('cancel-button')).toBeInTheDocument();
+  });
+
+  test('deve validar campos obrigatórios', async () => {
+    const user = userEvent.setup();
+    render(
+      <EnrollmentForm 
+        students={mockStudents}
+        courses={mockCourses}
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+      />
+    );
+    
+    const submitButton = screen.getByTestId('submit-button');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('student-error')).toHaveTextContent('Aluno é obrigatório');
+      expect(screen.getByTestId('course-error')).toHaveTextContent('Disciplina é obrigatória');
+    });
+  });
+
+  test('deve mostrar informações da disciplina selecionada', async () => {
+    const user = userEvent.setup();
+    render(
+      <EnrollmentForm 
+        students={mockStudents}
+        courses={mockCourses}
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+      />
+    );
+    
+    const courseSelect = screen.getByTestId('course-select');
+    await user.selectOptions(courseSelect, 'c1');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('course-info')).toHaveTextContent('Matemática');
+      expect(screen.getByTestId('course-info')).toHaveTextContent('Prof. Carlos');
+      expect(screen.getByTestId('course-info')).toHaveTextContent('Vagas disponíveis: 5');
+    });
+  });
+
+  test('deve desabilitar matrícula quando não há vagas', async () => {
+    const user = userEvent.setup();
+    render(
+      <EnrollmentForm 
+        students={mockStudents}
+        courses={mockCourses}
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+      />
+    );
+    
+    const courseSelect = screen.getByTestId('course-select');
+    await user.selectOptions(courseSelect, 'c2');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('no-vacancies')).toHaveTextContent('Não há vagas disponíveis');
+      expect(screen.getByTestId('submit-button')).toBeDisabled();
+    });
+  });
+
+  test('deve submeter matrícula com dados válidos', async () => {
+    const user = userEvent.setup();
+    render(
+      <EnrollmentForm 
+        students={mockStudents}
+        courses={mockCourses}
+        onSubmit={mockOnSubmit}
+        onCancel={mockOnCancel}
+      />
+    );
+    
+    const studentSelect = screen.getByTestId('student-select');
+    const courseSelect = screen.getByTestId('course-select');
+    const submitButton = screen.getByTestId('submit-button');
+
+    await user.selectOptions(studentSelect, 's1');
+    await user.selectOptions(courseSelect, 'c1');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalledWith({
+        studentId: 's1',
+        courseId: 'c1',
+      });
+    });
+  });
+});

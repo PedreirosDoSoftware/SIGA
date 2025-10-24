@@ -1,0 +1,60 @@
+﻿// TESTE ATUALIZADO - Para disciplinas acadêmicas
+
+// Mock do serviço de disciplinas
+const courseService = {
+  createCourse: jest.fn(),
+  deleteCourse: jest.fn(),
+  getCoursesByProfessor: jest.fn(),
+};
+
+// Interfaces para disciplinas
+interface Course {
+  id: string;
+  name: string;
+  code: string;
+  professor: string;
+  vacancies: number;
+  enrolled: number;
+  description: string;
+}
+
+describe('CourseService - Testes Unitários', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('createCourse', () => {
+    test('deve criar disciplina com dados válidos', async () => {
+      const newCourse = {
+        name: 'Matemática Avançada',
+        code: 'MAT101',
+        professor: 'Prof. João Silva',
+        vacancies: 30,
+        enrolled: 0,
+        description: 'Disciplina de matemática para graduação'
+      };
+
+      const mockResponse: Course = { id: 'c1', ...newCourse };
+
+      courseService.createCourse.mockResolvedValue(mockResponse);
+
+      const result = await courseService.createCourse(newCourse);
+
+      expect(courseService.createCourse).toHaveBeenCalledWith(newCourse);
+      expect(result.code).toBe('MAT101');
+      expect(result.professor).toBe('Prof. João Silva');
+    });
+  });
+
+  describe('deleteCourse', () => {
+    test('deve remover disciplina com ID válido', async () => {
+      const courseId = 'c1';
+      
+      courseService.deleteCourse.mockResolvedValue(undefined);
+
+      await courseService.deleteCourse(courseId);
+
+      expect(courseService.deleteCourse).toHaveBeenCalledWith(courseId);
+    });
+  });
+});

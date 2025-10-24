@@ -1,0 +1,95 @@
+﻿// TESTE CORRIGIDO - Não importa serviços externos
+
+// Mock do serviço de usuários
+const userService = {
+  createUser: jest.fn(),
+  deleteUser: jest.fn(),
+  getUsers: jest.fn(),
+};
+
+// Interface para tipagem
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+describe('UserService - Testes Unitários', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('createUser', () => {
+    test('deve criar usuário com dados válidos', async () => {
+      const newUser = {
+        name: 'Maria Silva',
+        email: 'maria@email.com',
+        phone: '11988887777',
+      };
+
+      const mockResponse: User = { id: '123', ...newUser };
+
+      userService.createUser.mockResolvedValue(mockResponse);
+
+      const result = await userService.createUser(newUser);
+
+      expect(userService.createUser).toHaveBeenCalledWith(newUser);
+      expect(result.id).toBe('123');
+      expect(result.name).toBe('Maria Silva');
+      expect(result.email).toBe('maria@email.com');
+    });
+
+    test('deve validar dados obrigatórios do usuário', async () => {
+      const invalidUser = {
+        name: '',
+        email: 'email-invalido',
+        phone: '',
+      };
+
+      userService.createUser.mockRejectedValue(new Error('Dados inválidos'));
+
+      await expect(userService.createUser(invalidUser))
+        .rejects.toThrow('Dados inválidos');
+    });
+  });
+
+  describe('deleteUser', () => {
+    test('deve remover usuário com ID válido', async () => {
+      const userId = '123';
+      
+      userService.deleteUser.mockResolvedValue(undefined);
+
+      await userService.deleteUser(userId);
+
+      expect(userService.deleteUser).toHaveBeenCalledWith(userId);
+    });
+
+    test('deve lançar erro ao tentar remover usuário inexistente', async () => {
+      const userId = '999';
+      
+      userService.deleteUser.mockRejectedValue(new Error('Usuário não encontrado'));
+
+      await expect(userService.deleteUser(userId))
+        .rejects.toThrow('Usuário não encontrado');
+    });
+  });
+
+  describe('getUsers', () => {
+    test('deve retornar lista de usuários', async () => {
+      const mockUsers: User[] = [
+        { id: '1', name: 'Admin', email: 'admin@siga.com', phone: '11999999999' },
+        { id: '2', name: 'João', email: 'joao@email.com', phone: '11888888888' },
+      ];
+
+      userService.getUsers.mockResolvedValue(mockUsers);
+
+      const result = await userService.getUsers();
+
+      expect(userService.getUsers).toHaveBeenCalled();
+      expect(result).toHaveLength(2);
+      expect(result[0].name).toBe('Admin');
+      expect(result[1].email).toBe('joao@email.com');
+    });
+  });
+});

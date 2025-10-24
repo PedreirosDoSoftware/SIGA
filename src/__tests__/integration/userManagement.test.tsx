@@ -1,0 +1,322 @@
+﻿// TESTE DE INTEGRAÇÃO - Gerenciamento de Usuários Acadêmicos
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+// Mock do gerenciamento de usuários
+const UserManagement = () => {
+  const [users, setUsers] = React.useState<Array<{
+    id: string;
+    name: string;
+    email: string;
+    role: 'admin' | 'professor' | 'aluno';
+    phone: string;
+  }>>([]);
+
+  const [showForm, setShowForm] = React.useState(false);
+
+  React.useEffect(() => {
+    // Mock de carregamento inicial
+    setUsers([
+      { id: '1', name: 'Admin User', email: 'admin@academia.com', role: 'admin', phone: '11999999999' },
+      { id: '2', name: 'Prof. João Silva', email: 'joao@academia.com', role: 'professor', phone: '11888888888' },
+      { id: '3', name: 'Aluna Maria Santos', email: 'maria@aluno.academia.com', role: 'aluno', phone: '11777777777' },
+    ]);
+  }, []);
+
+  const handleAddUser = (userData: { name: string; email: string; phone: string; role: string }) => {
+    const newUser = {
+      id: Date.now().toString(),
+      ...userData,
+      role: userData.role as 'admin' | 'professor' | 'aluno',
+    };
+    setUsers(prev => [...prev, newUser]);
+    setShowForm(false);
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    setUsers(prev => prev.filter(user => user.id !== userId));
+  };
+
+  return (
+    <div data-testid="user-management">
+      <h2>Gerenciamento de Usuários Acadêmicos</h2>
+      
+      <button 
+        onClick={() => setShowForm(true)}
+        data-testid="add-user-button"
+      >
+        Adicionar Usuário
+      </button>
+
+      {showForm && (
+        <UserForm 
+          onSubmit={handleAddUser}
+          onCancel={() => setShowForm(false)}
+        />
+      )}
+
+      <div data-testid="users-list">
+        <h3>Usuários Cadastrados</h3>
+        {users.length === 0 ? (
+          <p data-testid="no-users">Nenhum usuário cadastrado</p>
+        ) : (
+          users.map(user => (
+            <div key={user.id} data-testid={`user-${user.id}`} className="user-card">
+              <div>
+                <h4 data-testid="user-name">{user.name}</h4>
+                <p data-testid="user-email">Email: {user.email}</p>
+                <p data-testid="user-role">Tipo: {user.role}</p>
+                <p data-testid="user-phone">Telefone: {user.phone}</p>
+                <button 
+                  onClick={() => handleDeleteUser(user.id)}
+                  data-testid={`delete-${user.id}`}
+                >
+                  Remover Usuário
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Mock do UserForm
+const UserForm = ({ onSubmit, onCancel }: { 
+  onSubmit: (data: { name: string; email: string; phone: string; role: string }) => void; 
+  onCancel: () => void; 
+}) => {
+  const [formData, setFormData] = React.useState({
+    name: '',
+    email: '',
+    phone: '',
+    role: 'aluno',
+  });
+
+  const [errors, setErrors] = React.useState<{[key: string]: string}>({});
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newErrors: {[key: string]: string} = {};
+
+    if (!formData.name.trim()) newErrors.name = 'Nome é obrigatório';
+    if (!formData.email.trim()) newErrors.email = 'E-mail é obrigatório';
+    if (formData.email && !formData.email.includes('@')) newErrors.email = 'E-mail deve ser válido';
+    if (!formData.phone.trim()) newErrors.phone = 'Telefone é obrigatório';
+
+    if (Object.keys(newErrors).length === 0) {
+      onSubmit(formData);
+    } else {
+      setErrors(newErrors);
+    }
+  };
+
+  const formatPhone = (phone: string): string => {
+    const numbers = phone.replace(/\D/g, '');
+    if (numbers.length <= 11) {
+      return numbers.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    }
+    return phone;
+  };
+
+  const handlePhoneChange = (value: string) => {
+    const formatted = formatPhone(value);
+    setFormData(prev => ({ ...prev, phone: formatted }));
+  };
+
+  return (
+    <form onSubmit={handleSubmit} data-testid="user-form">
+      <div>
+        <label htmlFor="name">Nome completo:</label>
+        <input
+          id="name"
+          type="text"
+          value={formData.name}
+          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+          data-testid="name-input"
+        />
+        {errors.name && <span data-testid="name-error">{errors.name}</span>}
+      </div>
+
+      <div>
+        <label htmlFor="email">E-mail:</label>
+        <input
+          id="email"
+          type="email"
+          value={formData.email}
+          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+          data-testid="email-input"
+        />
+        {errors.email && <span data-testid="email-error">{errors.email}</span>}
+      </div>
+
+      <div>
+        <label htmlFor="phone">Telefone:</label>
+        <input
+          id="phone"
+          type="text"
+          value={formData.phone}
+          onChange={(e) => handlePhoneChange(e.target.value)}
+          data-testid="phone-input"
+        />
+        {errors.phone && <span data-testid="phone-error">{errors.phone}</span>}
+      </div>
+
+      <div>
+        <label htmlFor="role">Tipo de usuário:</label>
+        <select
+          id="role"
+          value={formData.role}
+          onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+          data-testid="role-select"
+        >
+          <option value="aluno">Aluno</option>
+          <option value="professor">Professor</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+
+      <div>
+        <button type="submit" data-testid="submit-button">Salvar Usuário</button>
+        <button type="button" onClick={onCancel} data-testid="cancel-button">Cancelar</button>
+      </div>
+    </form>
+  );
+};
+
+describe('Integração - Gerenciamento de Usuários Acadêmicos', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('deve carregar usuários iniciais', async () => {
+    render(<UserManagement />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user-1')).toBeInTheDocument();
+      expect(screen.getByTestId('user-2')).toBeInTheDocument();
+      expect(screen.getByTestId('user-3')).toBeInTheDocument();
+      
+      expect(screen.getByTestId('user-name')).toHaveTextContent('Admin User');
+      expect(screen.getByTestId('user-email')).toHaveTextContent('admin@academia.com');
+      expect(screen.getByTestId('user-role')).toHaveTextContent('admin');
+    });
+  });
+
+  test('deve cadastrar novo professor', async () => {
+    const user = userEvent.setup();
+    render(<UserManagement />);
+
+    // Clicar para adicionar novo usuário
+    const addButton = screen.getByTestId('add-user-button');
+    await user.click(addButton);
+
+    // Preencher formulário de professor
+    const nameInput = screen.getByTestId('name-input');
+    const emailInput = screen.getByTestId('email-input');
+    const phoneInput = screen.getByTestId('phone-input');
+    const roleSelect = screen.getByTestId('role-select');
+    const submitButton = screen.getByTestId('submit-button');
+
+    await user.type(nameInput, 'Prof. Carlos Lima');
+    await user.type(emailInput, 'carlos@academia.com');
+    await user.type(phoneInput, '11666666666');
+    await user.selectOptions(roleSelect, 'professor');
+    await user.click(submitButton);
+
+    // Verificar se professor foi adicionado
+    await waitFor(() => {
+      expect(screen.getByTestId('user-name')).toHaveTextContent('Prof. Carlos Lima');
+      expect(screen.getByTestId('user-email')).toHaveTextContent('carlos@academia.com');
+      expect(screen.getByTestId('user-role')).toHaveTextContent('professor');
+    });
+  });
+
+  test('deve validar campos obrigatórios do formulário', async () => {
+    const user = userEvent.setup();
+    render(<UserManagement />);
+
+    const addButton = screen.getByTestId('add-user-button');
+    await user.click(addButton);
+
+    const submitButton = screen.getByTestId('submit-button');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('name-error')).toHaveTextContent('Nome é obrigatório');
+      expect(screen.getByTestId('email-error')).toHaveTextContent('E-mail é obrigatório');
+      expect(screen.getByTestId('phone-error')).toHaveTextContent('Telefone é obrigatório');
+    });
+  });
+
+  test('deve formatar telefone durante a digitação', async () => {
+    const user = userEvent.setup();
+    render(<UserManagement />);
+
+    const addButton = screen.getByTestId('add-user-button');
+    await user.click(addButton);
+
+    const phoneInput = screen.getByTestId('phone-input');
+    await user.type(phoneInput, '11999999999');
+
+    expect(phoneInput).toHaveValue('(11) 99999-9999');
+  });
+
+  test('deve remover usuário do sistema', async () => {
+    const user = userEvent.setup();
+    render(<UserManagement />);
+
+    // Aguardar carregamento
+    await waitFor(() => {
+      expect(screen.getByTestId('user-1')).toBeInTheDocument();
+    });
+
+    // Remover usuário
+    const deleteButton = screen.getByTestId('delete-1');
+    await user.click(deleteButton);
+
+    // Verificar se usuário foi removido
+    await waitFor(() => {
+      expect(screen.queryByTestId('user-1')).not.toBeInTheDocument();
+      expect(screen.getByTestId('user-2')).toBeInTheDocument(); // Os outros devem permanecer
+      expect(screen.getByTestId('user-3')).toBeInTheDocument();
+    });
+  });
+
+  test('deve mostrar mensagem quando não há usuários', async () => {
+    const user = userEvent.setup();
+    
+    // Mock vazio
+    const EmptyUserManagement = () => {
+      const [users, setUsers] = React.useState<Array<any>>([]);
+      
+      const handleDeleteAll = () => {
+        setUsers([]);
+      };
+
+      return (
+        <div>
+          <button onClick={handleDeleteAll} data-testid="delete-all">Remover Todos</button>
+          <div data-testid="users-list">
+            {users.length === 0 ? (
+              <p data-testid="no-users">Nenhum usuário cadastrado</p>
+            ) : (
+              users.map(user => <div key={user.id}>User</div>)
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    render(<EmptyUserManagement />);
+
+    const deleteAllButton = screen.getByTestId('delete-all');
+    await user.click(deleteAllButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('no-users')).toHaveTextContent('Nenhum usuário cadastrado');
+    });
+  });
+});

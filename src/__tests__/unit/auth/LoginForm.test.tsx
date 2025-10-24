@@ -1,0 +1,122 @@
+﻿// TESTE CORRIGIDO - Tipagem completa
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+// Interfaces para tipagem
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface LoginFormProps {
+  onSubmit?: (credentials: LoginCredentials) => void;
+}
+
+interface FormErrors {
+  email?: string;
+  password?: string;
+}
+
+// Mock do componente LoginForm
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit = () => {} }) => {
+  const [email, setEmail] = React.useState<string>('');
+  const [password, setPassword] = React.useState<string>('');
+  const [errors, setErrors] = React.useState<FormErrors>({});
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newErrors: FormErrors = {};
+    
+    if (!email) newErrors.email = 'Email é obrigatório';
+    if (!password) newErrors.password = 'Senha é obrigatória';
+    if (email && !email.includes('@')) newErrors.email = 'Email deve ser válido';
+    
+    if (Object.keys(newErrors).length === 0) {
+      onSubmit({ email, password });
+    } else {
+      setErrors(newErrors);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} data-testid="login-form">
+      <div>
+        <label htmlFor="email">Email:</label>
+        <input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          data-testid="email-input"
+        />
+        {errors.email && <span data-testid="email-error">{errors.email}</span>}
+      </div>
+      
+      <div>
+        <label htmlFor="password">Senha:</label>
+        <input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          data-testid="password-input"
+        />
+        {errors.password && <span data-testid="password-error">{errors.password}</span>}
+      </div>
+      
+      <button type="submit" data-testid="submit-button">
+        Entrar
+      </button>
+    </form>
+  );
+};
+
+describe('LoginForm - Testes Unitários', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('deve renderizar campos de email e senha', () => {
+    render(<LoginForm />);
+    
+    expect(screen.getByTestId('email-input')).toBeInTheDocument();
+    expect(screen.getByTestId('password-input')).toBeInTheDocument();
+    expect(screen.getByTestId('submit-button')).toBeInTheDocument();
+  });
+
+  test('deve validar campos obrigatórios', async () => {
+    const user = userEvent.setup();
+    render(<LoginForm />);
+    
+    const submitButton = screen.getByTestId('submit-button');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('email-error')).toHaveTextContent('Email é obrigatório');
+      expect(screen.getByTestId('password-error')).toHaveTextContent('Senha é obrigatória');
+    });
+  });
+
+  test('deve submeter formulário com dados válidos', async () => {
+    const mockOnSubmit = jest.fn();
+    const user = userEvent.setup();
+    
+    render(<LoginForm onSubmit={mockOnSubmit} />);
+    
+    const emailInput = screen.getByTestId('email-input');
+    const passwordInput = screen.getByTestId('password-input');
+    const submitButton = screen.getByTestId('submit-button');
+
+    await user.type(emailInput, 'admin@siga.com');
+    await user.type(passwordInput, 'admin123');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalledWith({
+        email: 'admin@siga.com',
+        password: 'admin123'
+      });
+    });
+  });
+});

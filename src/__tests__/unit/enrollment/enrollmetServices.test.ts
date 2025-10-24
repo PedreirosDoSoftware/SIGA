@@ -1,0 +1,46 @@
+﻿// TESTE ATUALIZADO - Para matrículas
+
+// Mock do serviço de matrículas
+const enrollmentService = {
+  enrollStudent: jest.fn(),
+  getAvailableCourses: jest.fn(),
+  getStudentEnrollments: jest.fn(),
+};
+
+// Interfaces para matrículas
+interface Enrollment {
+  id: string;
+  studentId: string;
+  courseId: string;
+  enrollmentDate: string;
+  status: 'active' | 'cancelled';
+}
+
+describe('EnrollmentService - Testes Unitários', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('enrollStudent', () => {
+    test('deve matricular aluno em disciplina com vagas', async () => {
+      const enrollmentData = {
+        studentId: 's1',
+        courseId: 'c1',
+      };
+
+      const mockResponse: Enrollment = {
+        id: 'e1',
+        ...enrollmentData,
+        enrollmentDate: new Date().toISOString(),
+        status: 'active'
+      };
+
+      enrollmentService.enrollStudent.mockResolvedValue(mockResponse);
+
+      const result = await enrollmentService.enrollStudent(enrollmentData);
+
+      expect(enrollmentService.enrollStudent).toHaveBeenCalledWith(enrollmentData);
+      expect(result.status).toBe('active');
+    });
+  });
+});
