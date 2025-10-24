@@ -1,142 +1,119 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { GraduationCap, Mail, Lock, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Label } from "@/components/ui/label"
+import { signIn, getCurrentUser } from "@/lib/supabase/auth"
+import { GraduationCap } from "lucide-react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
-  const [senha, setSenha] = useState("")
+  const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
+    setIsLoading(true)
     setError("")
 
     try {
-      // Usuários de exemplo
-      const usuarios = [
-        { email: "admin@siga.com", senha: "123456", tipo: "admin", nome: "Administrador" },
-        { email: "professor@siga.com", senha: "123456", tipo: "professor", nome: "Prof. João Silva" },
-        { email: "aluno@siga.com", senha: "123456", tipo: "aluno", nome: "Maria Santos", matricula: "2024001" },
-        { email: "pedagogia@siga.com", senha: "123456", tipo: "pedagogia", nome: "Coord. Ana Costa" },
-      ]
-
-      const usuario = usuarios.find((u) => u.email === email && u.senha === senha)
-
-      if (usuario) {
-        localStorage.setItem("usuario", JSON.stringify(usuario))
-
-        switch (usuario.tipo) {
-          case "admin":
-            router.push("/admin/dashboard")
-            break
-          case "professor":
-            router.push("/professor/dashboard")
-            break
-          case "aluno":
-            router.push("/aluno/dashboard")
-            break
-          case "pedagogia":
-            router.push("/pedagogia/dashboard")
-            break
+      const { user } = await signIn(email, password)
+      
+      if (user) {
+        // Buscar dados completos do usuário
+        const userData = await getCurrentUser()
+        
+        if (userData) {
+          // Redirecionar baseado no tipo de usuário
+          switch (userData.tipo) {
+            case 'admin':
+              router.push('/admin/dashboard')
+              break
+            case 'professor':
+              router.push('/professor/dashboard') 
+              break
+            case 'aluno':
+              router.push('/aluno/dashboard')
+              break
+            case 'pedagogia':
+              router.push('/pedagogia/dashboard')
+              break
+            default:
+              router.push('/')
+          }
         }
-      } else {
-        setError("Email ou senha incorretos!")
       }
-    } catch (err) {
-      setError("Erro ao fazer login. Tente novamente.")
+    } catch (error: any) {
+      console.error('Erro no login:', error)
+      setError(error.message || 'Erro ao fazer login. Verifique suas credenciais.')
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <GraduationCap className="h-12 w-12 text-blue-600" />
           </div>
-          <CardTitle className="text-2xl">SIGA</CardTitle>
-          <CardDescription>Sistema Inteligente de Gestão Acadêmica</CardDescription>
+          <CardTitle className="text-2xl font-bold">SIGA - Login</CardTitle>
+          <CardDescription>
+            Entre com suas credenciais para acessar o sistema
+          </CardDescription>
         </CardHeader>
-
         <CardContent>
-          {error && (
-            <Alert className="mb-4" variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+                {error}
+              </div>
+            )}
+            
             <div className="space-y-2">
-              <Label htmlFor="email">
-                <Mail className="inline h-4 w-4 mr-2" />
-                E-mail
-              </Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
+                placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Digite seu e-mail"
                 required
+                disabled={isLoading}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="senha">
-                <Lock className="inline h-4 w-4 mr-2" />
-                Senha
-              </Label>
+              <Label htmlFor="password">Senha</Label>
               <Input
-                id="senha"
+                id="password"
                 type="password"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                placeholder="Digite sua senha"
+                placeholder="Sua senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
-                "Entrando..."
-              ) : (
-                <>
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Entrar
-                </>
-              )}
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isLoading}
+            >
+              {isLoading ? "Entrando..." : "Entrar"}
             </Button>
+
+            <div className="text-center text-sm text-gray-600">
+              <p>Não tem conta? <a href="/cadastro" className="text-blue-600 hover:underline">Cadastre-se</a></p>
+            </div>
           </form>
-
-          <div className="text-center mt-4 text-sm text-gray-600">
-            Não possui uma conta?{" "}
-            <Link href="/cadastro" className="text-blue-600 hover:underline">
-              Cadastre-se aqui
-            </Link>
-          </div>
-
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg text-xs text-gray-600">
-            <p className="font-semibold mb-2">Usuários de teste:</p>
-            <p>Admin: admin@siga.com / 123456</p>
-            <p>Professor: professor@siga.com / 123456</p>
-            <p>Aluno: aluno@siga.com / 123456</p>
-            <p>Pedagogia: pedagogia@siga.com / 123456</p>
-          </div>
         </CardContent>
       </Card>
     </div>
