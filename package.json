@@ -5,17 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-<<<<<<< HEAD
-    "start": "next start",
-=======
-    "start": "next start", 
->>>>>>> 47a71f1e88039327d94bbd18771d8ab00503bc14
-    "lint": "next lint",
     "test": "npx jest --preset=ts-jest --testEnvironment=jsdom --setupFilesAfterEnv=src/setupTests.ts --transform='{\"^.+\\\\.(ts|tsx)$\":\"ts-jest\"}' --testPathIgnorePatterns='<rootDir>/.next/,<rootDir>/node_modules/'",
     "test:watch": "npx jest --preset=ts-jest --testEnvironment=jsdom --setupFilesAfterEnv=src/setupTests.ts --watch",
     "test:coverage": "npx jest --preset=ts-jest --testEnvironment=jsdom --setupFilesAfterEnv=src/setupTests.ts --coverage"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
