@@ -93,6 +93,7 @@ export default function CadastroPage() {
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                 required
                 disabled={isLoading}
+                maxLength={75} 
               />
             </div>
 
