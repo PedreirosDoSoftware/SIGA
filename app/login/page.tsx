@@ -99,7 +99,13 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
+                maxLength={12}
               />
+              <div className={`text-xs text-right ${
+                password.length == 12 ? 'text-red-500' :
+                password.length > 10 ? 'text-orange-500' : 'text-gray-500'
+                }`}>
+                {password.length}/12 caracteres
             </div>
 
             <Button 
