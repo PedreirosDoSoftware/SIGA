@@ -16,7 +16,7 @@ export default function CadastroPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    tipo: ""
+    tipo: "",
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -27,7 +27,7 @@ export default function CadastroPage() {
     setIsLoading(true)
     setError("")
 
-    // Validações
+    // Validações básicas
     if (formData.password !== formData.confirmPassword) {
       setError("As senhas não coincidem")
       setIsLoading(false)
@@ -47,26 +47,21 @@ export default function CadastroPage() {
     }
 
     try {
+      // Cadastro simples - só cria o usuário no Auth
       await signUp(formData.email, formData.password, {
         nome: formData.nome,
         tipo: formData.tipo
       })
 
-      // Redirecionar para login após cadastro bem-sucedido
+      // Se chegou aqui, deu certo
       router.push("/login?message=Cadastro realizado com sucesso! Faça login.")
+
     } catch (error: any) {
       console.error('Erro no cadastro:', error)
       setError(error.message || 'Erro ao criar conta. Tente novamente.')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
   }
 
   return (
@@ -95,7 +90,7 @@ export default function CadastroPage() {
                 id="nome"
                 placeholder="Seu nome completo"
                 value={formData.nome}
-                onChange={(e) => handleChange('nome', e.target.value)}
+                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                 required
                 disabled={isLoading}
               />
@@ -108,7 +103,7 @@ export default function CadastroPage() {
                 type="email"
                 placeholder="seu@email.com"
                 value={formData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
                 disabled={isLoading}
               />
@@ -116,14 +111,14 @@ export default function CadastroPage() {
 
             <div className="space-y-2">
               <Label htmlFor="tipo">Tipo de Usuário</Label>
-              <Select onValueChange={(value) => handleChange('tipo', value)} disabled={isLoading}>
+              <Select onValueChange={(value) => setFormData({ ...formData, tipo: value })} disabled={isLoading}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Administrador</SelectItem>
-                  <SelectItem value="professor">Professor</SelectItem>
                   <SelectItem value="aluno">Aluno</SelectItem>
+                  <SelectItem value="professor">Professor</SelectItem>
+                  <SelectItem value="admin">Administrador</SelectItem>
                   <SelectItem value="pedagogia">Pedagogia</SelectItem>
                 </SelectContent>
               </Select>
@@ -136,7 +131,7 @@ export default function CadastroPage() {
                 type="password"
                 placeholder="Mínimo 6 caracteres"
                 value={formData.password}
-                onChange={(e) => handleChange('password', e.target.value)}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
                 disabled={isLoading}
               />
@@ -149,7 +144,7 @@ export default function CadastroPage() {
                 type="password"
                 placeholder="Digite novamente sua senha"
                 value={formData.confirmPassword}
-                onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 required
                 disabled={isLoading}
               />

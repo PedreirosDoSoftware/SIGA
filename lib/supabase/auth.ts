@@ -34,7 +34,7 @@ export async function signUp(email: string, password: string, userData: { nome: 
     const { error: userError } = await supabase
       .from('usuarios')
       .insert([{
-        id: data.user.id,
+        id: data.user.id,  // ✅ Usar data.user.id
         email: data.user.email,
         nome: userData.nome,
         tipo: userData.tipo
@@ -46,7 +46,7 @@ export async function signUp(email: string, password: string, userData: { nome: 
     }
   }
 
-  return data
+  return { data, error: null }  // ✅ Retornar data corretamente
 }
 
 export async function signOut() {
