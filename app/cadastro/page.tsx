@@ -93,8 +93,14 @@ export default function CadastroPage() {
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                 required
                 disabled={isLoading}
-                maxLength={75} 
+                maxLength={50} 
               />
+                <div className={`text-xs text-right ${
+                formData.nome.length == 50 ? 'text-red-500' :
+                formData.nome.length > 45 ? 'text-orange-500' : 'text-gray-500'
+                }`}>
+                {formData.nome.length}/50 caracteres
+  </div>
             </div>
 
             <div className="space-y-2">
@@ -135,7 +141,14 @@ export default function CadastroPage() {
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
                 disabled={isLoading}
+                maxLength={12}
               />
+              <div className={`text-xs text-right ${
+                formData.password.length == 12 ? 'text-red-500' :
+                formData.password.length > 10 ? 'text-orange-500' : 'text-gray-500'
+                }`}>
+                {formData.password.length}/12 caracteres
+            </div>
             </div>
 
             <div className="space-y-2">
@@ -148,7 +161,14 @@ export default function CadastroPage() {
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 required
                 disabled={isLoading}
+                maxLength={12}
               />
+              <div className={`text-xs text-right ${
+                formData.confirmPassword.length == 12 ? 'text-red-500' :
+                formData.confirmPassword.length > 10 ? 'text-orange-500' : 'text-gray-500' 
+                }`}>
+                {formData.confirmPassword.length}/12 caracteres
+              </div>
             </div>
 
             <Button 
