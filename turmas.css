@@ -1,0 +1,460 @@
+:root {
+    --primary-color: #3498db;
+    --primary-dark: #2980b9;
+    --secondary-color: #2c3e50;
+    --text-color: #7f8c8d;
+    --white: #ffffff;
+    --background: #e6f2ff;
+    --sidebar-bg: #2c3e50;
+    --card-blue: #3498db;
+    --card-green: #2ecc71;
+    --card-orange: #e67e22;
+    --card-yellow: #f1c40f;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --inactive: #95a5a6;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--secondary-color);
+    line-height: 1.6;
+}
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background-color: var(--sidebar-bg);
+    color: var(--white);
+    padding: 1.5rem;
+    position: fixed;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo i {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.sidebar nav ul {
+    list-style: none;
+    flex-grow: 1;
+    margin-top: 1rem;
+}
+
+.sidebar nav ul li {
+    margin-bottom: 0.75rem;
+}
+
+.sidebar nav ul li a {
+    color: var(--white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.sidebar nav ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar nav ul li.active a {
+    background-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.sidebar nav ul li a i {
+    width: 24px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.logout-container {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn {
+    color: var(--white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn i {
+    width: 24px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+/* Main Content Styles */
+.content {
+    flex: 1;
+    padding: 2rem;
+    margin-left: 250px;
+    transition: margin-left 0.3s ease;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.header h2 {
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.75rem;
+}
+
+.header h2 i {
+    color: var(--primary-color);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.user-profile i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+/* Cards Styles */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.card {
+    background-color: var(--white);
+    border-radius: 10px;
+    padding: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.card-icon.blue {
+    background-color: var(--card-blue);
+}
+
+.card-icon.green {
+    background-color: var(--card-green);
+}
+
+.card-icon.orange {
+    background-color: var(--card-orange);
+}
+
+.card-icon.yellow {
+    background-color: var(--card-yellow);
+}
+
+.card-info h3 {
+    color: var(--text-color);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.card-info p {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+/* Table Styles */
+.recent-students {
+    background-color: var(--white);
+    border-radius: 10px;
+    padding: 1.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+.recent-students h3 {
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+}
+
+.recent-students h3 i {
+    color: var(--primary-color);
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+table th {
+    background-color: #f8f9fa;
+    color: var(--text-color);
+    font-weight: 600;
+    text-align: left;
+    padding: 1rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #eee;
+}
+
+table td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+table tr:last-child td {
+    border-bottom: none;
+}
+
+table tr:hover td {
+    background-color: #f8f9fa;
+}
+
+/* Status Styles */
+.status {
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+    text-align: center;
+    min-width: 80px;
+}
+
+.status.active {
+    background-color: rgba(46, 204, 113, 0.15);
+    color: var(--card-green);
+}
+
+.status.warning {
+    background-color: rgba(241, 196, 15, 0.15);
+    color: var(--warning);
+}
+
+.status.inactive {
+    background-color: rgba(149, 165, 166, 0.15);
+    color: var(--inactive);
+}
+
+.status.danger {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: var(--danger);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.action-btn.edit:hover {
+    color: var(--primary-color);
+}
+
+.action-btn.delete:hover {
+    color: var(--danger);
+}
+
+.action-btn.view:hover {
+    color: var(--card-green);
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+    .sidebar {
+        width: 220px;
+        padding: 1.25rem;
+    }
+    
+    .content {
+        margin-left: 220px;
+        padding: 1.75rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        width: 80px;
+        overflow: hidden;
+    }
+    
+    .sidebar .logo h1,
+    .sidebar nav ul li a span,
+    .logout-btn span {
+        display: none;
+    }
+    
+    .sidebar .logo {
+        justify-content: center;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .sidebar nav ul li a,
+    .logout-btn {
+        justify-content: center;
+        padding: 0.75rem;
+    }
+    
+    .content {
+        margin-left: 80px;
+        padding: 1.5rem;
+    }
+    
+    .cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .user-profile {
+        margin-left: auto;
+    }
+    
+    .card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+    }
+    
+    .card-icon {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .content {
+        padding: 1.25rem;
+    }
+    
+    .recent-students {
+        padding: 1.25rem;
+    }
+    
+    table th, table td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .action-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+    }
+}

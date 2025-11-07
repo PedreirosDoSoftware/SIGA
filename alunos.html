@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Alunos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="alunos.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <h1>SIGA</h1>
+            </div>
+            
+            <nav>
+                <ul>
+                    <li><a href="tela-inicial.php"><i class="fas fa-home"></i> Principal</a></li>
+                    <li class="active"><a href="alunos.html"><i class="fas fa-users"></i> Alunos</a></li>
+                    <li><a href="turmas.html"><i class="fas fa-book"></i> Turmas</a></li>
+                    <li><a href="recomendacoes.html"><i class="fas fa-lightbulb"></i> Recomendações</a></li>
+                </ul>
+            </nav>
+            
+            <div class="logout-container">
+                <a href="#" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </a>
+            </div>
+        </aside>
+
+        <main class="content">
+            <header class="header">
+                <h2><i class="fas fa-users"></i> Gestão de Alunos</h2>
+                <div class="user-profile">
+                    <span>Admin</span>
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </header>
+
+            <!-- Cards de Resumo -->
+            <section class="cards">
+                <div class="card">
+                    <div class="card-icon blue">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Total de Alunos</h3>
+                        <p id="total-alunos">0</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Alunos Ativos</h3>
+                        <p id="alunos-ativos">0</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon orange">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Média Geral</h3>
+                        <p id="media-geral">0.0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabela de Alunos -->
+            <section class="recent-students">
+                <h3><i class="fas fa-list"></i> Alunos Cadastrados</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matrícula</th>
+                            <th>Nome</th>
+                            <th>Turma</th>
+                            <th>Nota 1</th>
+                            <th>Nota 2</th>
+                            <th>Nota 3</th>
+                            <th>Média</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-alunos">
+                        <!-- Linhas serão adicionadas dinamicamente via JavaScript -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <script src="alunos.js"></script>
+</body>
+</html>

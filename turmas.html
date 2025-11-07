@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Turmas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="turmas.css">
+</head>
+<body>
+    <div class="dashboard">
+        
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <h1>SIGA</h1>
+            </div>
+               <nav>
+                <ul>
+                    <li class="active"><a href="tela-inicial.php"><i class="fas fa-home"></i> Principal</a></li>
+                    <li><a href="alunos.html"><i class="fas fa-users"></i> Alunos</a></li>
+                    <li><a href="turmas.html"><i class="fas fa-book"></i> Turmas</a></li>
+                    <li><a href="recomendacoes.html"><i class="fas fa-lightbulb"></i> Recomendações</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="logout-container">
+                <a href="#" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </a>
+            </div>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="content">
+            <header class="header">
+                <h2><i class="fas fa-chalkboard"></i> Gestão de Turmas</h2>
+                <div class="user-profile">
+                    <span>Admin</span>
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </header>
+
+            <!-- Cards de Resumo -->
+            <section class="cards">
+                <div class="card">
+                    <div class="card-icon blue">
+                        <i class="fas fa-chalkboard"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Total de Turmas</h3>
+                        <p>15</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon green">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Alunos Matriculados</h3>
+                        <p>120</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon orange">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Média de Evasão</h3>
+                        <p>12%</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabela de Turmas -->
+            <section class="recent-students">
+                <h3><i class="fas fa-list"></i> Turmas Cadastradas</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Turma</th>
+                            <th>Professor</th>
+                            <th>Qtd. Alunos</th>
+                            <th>Média Geral</th>
+                            <th>Evasão</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>TUR2023A</td>
+                            <td>3º Ano A - Manhã</td>
+                            <td>Prof. Carlos Silva</td>
+                            <td>32</td>
+                            <td>8.2</td>
+                            <td>9%</td>
+                            <td><span class="status active">Ativa</span></td>
+                            <td>
+                                <button class="action-btn"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn"><i class="fas fa-trash"></i></button>
+                                <button class="action-btn"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>TUR2023B</td>
+                            <td>2º Ano B - Tarde</td>
+                            <td>Prof. Ana Oliveira</td>
+                            <td>28</td>
+                            <td>7.8</td>
+                            <td>15%</td>
+                            <td><span class="status active">Ativa</span></td>
+                            <td>
+                                <button class="action-btn"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn"><i class="fas fa-trash"></i></button>
+                                <button class="action-btn"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>TUR2023C</td>
+                            <td>1º Ano C - Manhã</td>
+                            <td>Prof. João Santos</td>
+                            <td>35</td>
+                            <td>6.9</td>
+                            <td>18%</td>
+                            <td><span class="status warning">Atenção</span></td>
+                            <td>
+                                <button class="action-btn"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn"><i class="fas fa-trash"></i></button>
+                                <button class="action-btn"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>TUR2022A</td>
+                            <td>3º Ano A - 2022</td>
+                            <td>Prof. Maria Costa</td>
+                            <td>30</td>
+                            <td>8.5</td>
+                            <td>5%</td>
+                            <td><span class="status inactive">Encerrada</span></td>
+                            <td>
+                                <button class="action-btn"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn"><i class="fas fa-trash"></i></button>
+                                <button class="action-btn"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
