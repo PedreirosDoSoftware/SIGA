@@ -106,7 +106,6 @@ export default function LoginPage() {
                 password.length > 10 ? 'text-orange-500' : 'text-gray-500'
                 }`}>
                 {password.length}/12 caracteres
-                </div>
             </div>
 
             <Button 
