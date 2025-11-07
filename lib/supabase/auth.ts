@@ -46,7 +46,7 @@ export async function signUp(email: string, password: string, userData: { nome: 
     }
   }
 
-  return data
+  return data // ✅ CORREÇÃO: Retornar apenas data, não um objeto
 }
 
 export async function signOut() {
@@ -83,4 +83,9 @@ export async function getCurrentUser(): Promise<Usuario | null> {
 export async function getSession() {
   const { data: { session } } = await supabase.auth.getSession()
   return session
+}
+
+export async function validationCont(email: string): Promise<boolean> {
+  // forma simples — apenas verifica se existe '@'
+  return email.includes('@');
 }

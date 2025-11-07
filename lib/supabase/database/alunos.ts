@@ -62,6 +62,7 @@ export async function getAlunosByTurma(turma: string): Promise<Aluno[]> {
   return data || []
 }
 
+// ✅ FUNÇÃO createAluno QUE ESTAVA FALTANDO - ADICIONE ESTA FUNÇÃO
 export async function createAluno(alunoData: {
   matricula: string
   nome: string
@@ -69,16 +70,14 @@ export async function createAluno(alunoData: {
   nota1: number
   nota2: number
   nota3: number
+  user_id: string
 }): Promise<Aluno> {
-  const media = (alunoData.nota1 + alunoData.nota2 + alunoData.nota3) / 3
-  const status = media >= 7 ? 'Aprovado' : media >= 5 ? 'Recuperação' : 'Reprovado'
-
   const { data, error } = await supabase
     .from('alunos')
     .insert([{
       ...alunoData,
-      media,
-      status
+      media: 0,
+      status: 'Cursando'
     }])
     .select()
     .single()
