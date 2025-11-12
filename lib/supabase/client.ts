@@ -1,27 +1,22 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 
-// Variáveis de ambiente que devem ser configuradas no .env.local
+// Verificação mais segura para produção
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-// Declara a variável com o tipo correto do SupabaseClient
-// Usa "as any" como fallback para evitar quebras em ambientes sem config.
-let supabase: SupabaseClient | any 
+let supabase: any
 
 // Verifica se as variáveis existem
 if (!supabaseUrl || !supabaseAnonKey) {
-  // Em produção, exibe um aviso claro, mas evita quebra total no build.
-  // Esta verificação com typeof window é para garantir que a mensagem só
-  // apareça no browser (lado do cliente).
+  // Em produção, não quebra o build - só avisa
   if (typeof window !== 'undefined') {
-    console.error('❌ Variáveis de ambiente do Supabase (URL ou KEY) não configuradas. O cliente Supabase não será inicializado corretamente.')
+    console.error('❌ Variáveis do Supabase não configuradas!')
   }
   
-  // Atribui um objeto vazio como fallback (como você fez) para evitar erros de referência nulos.
-  // Componentes que usam 'supabase' devem lidar com a possibilidade de ele estar incompleto.
+  // Cria cliente vazio para não quebrar o build
   supabase = {}
 } else {
-  // Cria cliente normal quando as chaves estão presentes
+  // Cria cliente normal
   supabase = createClient(supabaseUrl, supabaseAnonKey)
 }
 
