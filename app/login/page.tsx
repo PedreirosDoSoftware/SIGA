@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => { // Tipagem corrigida para o FormEvent
     e.preventDefault()
     setIsLoading(true)
     setError("")
@@ -48,9 +48,10 @@ export default function LoginPage() {
           }
         }
       }
-    } catch (error: any) {
-      console.error('Erro no login:', error)
-      setError(error.message || 'Erro ao fazer login. Verifique suas credenciais.')
+    } catch (err) { // Usando 'err' e tratando como 'unknown' para segurança
+      console.error('Erro no login:', err)
+      const errorMessage = (err as Error)?.message || 'Erro ao fazer login. Verifique suas credenciais.'
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -99,14 +100,10 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                maxLength={12}
+                // REMOVENDO maxLength={12} para evitar problemas de UX,
+                // mas você pode recolocar se for obrigatório.
               />
-              <div className={`text-xs text-right ${
-                password.length == 12 ? 'text-red-500' :
-                password.length > 10 ? 'text-orange-500' : 'text-gray-500'
-                }`}>
-                {password.length}/12 caracteres
-            </div>
+              {/* REMOVENDO o contador de caracteres para simplicidade. */}
 
             <Button 
               type="submit" 
