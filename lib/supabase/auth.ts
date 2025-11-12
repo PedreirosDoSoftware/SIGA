@@ -46,8 +46,9 @@ export async function signUp(email: string, password: string, userData: { nome: 
     }
   }
 
-  return data // ✅ CORREÇÃO: Retornar apenas data, não um objeto
-}
+  // CORREÇÃO APLICADA AQUI: Garantindo que o return e o comentário estejam corretos.
+  return data
+} // <-- A chave de fechamento da função signUp DEVE estar aqui (linha 46)
 
 export async function signOut() {
   const { error } = await supabase.auth.signOut()
@@ -73,7 +74,8 @@ export async function getCurrentUser(): Promise<Usuario | null> {
       return null
     }
 
-    return user
+    // A tipagem 'Usuario' deve ser garantida aqui, se a busca for bem sucedida.
+    return user as Usuario
   } catch (error) {
     console.error('Erro em getCurrentUser:', error)
     return null
