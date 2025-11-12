@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => { // Tipagem corrigida para o FormEvent
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
@@ -48,7 +48,7 @@ export default function LoginPage() {
           }
         }
       }
-    } catch (err) { // Usando 'err' e tratando como 'unknown' para segurança
+    } catch (err) {
       console.error('Erro no login:', err)
       const errorMessage = (err as Error)?.message || 'Erro ao fazer login. Verifique suas credenciais.'
       setError(errorMessage)
@@ -100,11 +100,9 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                // REMOVENDO maxLength={12} para evitar problemas de UX,
-                // mas você pode recolocar se for obrigatório.
               />
-              {/* REMOVENDO o contador de caracteres para simplicidade. */}
-
+            </div> {/* <<< CORREÇÃO AQUI: Fechamento do div da senha */}
+            
             <Button 
               type="submit" 
               className="w-full" 
