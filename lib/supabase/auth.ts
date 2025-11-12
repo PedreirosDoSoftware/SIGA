@@ -1,6 +1,7 @@
 import { supabase } from './client'
 import type { Usuario } from './types/database'
 
+// Função de login
 export async function signIn(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -15,12 +16,18 @@ export async function signIn(email: string, password: string) {
   return data
 }
 
-export async function signUp(email: string, password: string, userData: { nome: string; tipo: string }) {
+// Função de cadastro
+export async function signUp(
+  email: string,
+  password: string,
+  userData: { nome: string; tipo: string }
+) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: userData
+      // Use user_metadata no Supabase JS v2
+      user_metadata: userData
     }
   })
 
@@ -29,7 +36,7 @@ export async function signUp(email: string, password: string, userData: { nome: 
     throw error
   }
 
-  // Criar registro na tabela usuarios
+  // Criar registro manual na tabela 'usuarios'
   if (data.user) {
     const { error: userError } = await supabase
       .from('usuarios')
@@ -46,10 +53,10 @@ export async function signUp(email: string, password: string, userData: { nome: 
     }
   }
 
-  // CORREÇÃO APLICADA AQUI: Garantindo que o return e o comentário estejam corretos.
   return data
-} // <-- A chave de fechamento da função signUp DEVE estar aqui (linha 46)
+}
 
+// Logout
 export async function signOut() {
   const { error } = await supabase.auth.signOut()
   if (error) {
@@ -58,6 +65,7 @@ export async function signOut() {
   }
 }
 
+// Obter usuário atual
 export async function getCurrentUser(): Promise<Usuario | null> {
   try {
     const { data: { session } } = await supabase.auth.getSession()
@@ -74,20 +82,20 @@ export async function getCurrentUser(): Promise<Usuario | null> {
       return null
     }
 
-    // A tipagem 'Usuario' deve ser garantida aqui, se a busca for bem sucedida.
-    return user as Usuario
+    return user
   } catch (error) {
     console.error('Erro em getCurrentUser:', error)
     return null
   }
 }
 
+// Obter sessão atual
 export async function getSession() {
   const { data: { session } } = await supabase.auth.getSession()
   return session
 }
 
+// Validação simples de email
 export async function validationCont(email: string): Promise<boolean> {
-  // forma simples — apenas verifica se existe '@'
-  return email.includes('@');
+  return email.includes('@')
 }
