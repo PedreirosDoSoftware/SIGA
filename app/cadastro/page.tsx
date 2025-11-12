@@ -186,5 +186,6 @@ export default function CadastroPage() {
         </CardContent>
       </Card>
     </div>
+    //so pra testar o commit//
   )
 }
