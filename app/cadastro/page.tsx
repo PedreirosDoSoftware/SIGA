@@ -186,6 +186,6 @@ export default function CadastroPage() {
         </CardContent>
       </Card>
     </div>
-    
+    //teste 2
   )
 }
