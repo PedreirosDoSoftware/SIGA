@@ -1,7 +1,8 @@
+// lib/supabase/auth.ts
 import { supabase } from './client'
 import type { Usuario } from './types/database'
 
-// Função de login
+// Login
 export async function signIn(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -16,7 +17,7 @@ export async function signIn(email: string, password: string) {
   return data
 }
 
-// Função de cadastro
+// Cadastro
 export async function signUp(
   email: string,
   password: string,
@@ -26,7 +27,6 @@ export async function signUp(
     email,
     password,
     options: {
-      // Use user_metadata no Supabase JS v2
       user_metadata: userData
     }
   })
@@ -48,7 +48,7 @@ export async function signUp(
       }])
 
     if (userError) {
-      console.error('Erro ao criar usuário:', userError)
+      console.error('Erro ao criar usuário na tabela usuarios:', userError)
       throw userError
     }
   }
@@ -65,7 +65,7 @@ export async function signOut() {
   }
 }
 
-// Obter usuário atual
+// Obter usuário atual da tabela 'usuarios'
 export async function getCurrentUser(): Promise<Usuario | null> {
   try {
     const { data: { session } } = await supabase.auth.getSession()
