@@ -18,6 +18,7 @@ import {
   PlayCircle,
   Library,
   Bell,
+  UserPlus, // 1. Ícone adicionado
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -46,6 +47,8 @@ export function Sidebar({ userType }: SidebarProps) {
           ...baseItems,
           { href: "/admin/alunos", icon: Users, label: "Alunos" },
           { href: "/admin/turmas", icon: BookOpen, label: "Turmas" },
+          // 2. Link adicionado e label alterada
+          { href: "/admin/cadastrar-usuario", icon: UserPlus, label: "Cadastro" },
           { href: "/admin/relatorios", icon: BarChart3, label: "Relatórios" },
           { href: "/admin/configuracoes", icon: Settings, label: "Configurações" },
         ]
@@ -66,13 +69,13 @@ export function Sidebar({ userType }: SidebarProps) {
           { href: "/aluno/notificacoes", icon: Bell, label: "Notificações" },
         ]
       case "pedagogia":
-        return [
-          ...baseItems,
-          { href: "/pedagogia/alunos", icon: Users, label: "Gestão de Alunos" },
-          { href: "/pedagogia/notas", icon: BarChart3, label: "Notas e Faltas" },
-          { href: "/pedagogia/turmas", icon: BookOpen, label: "Turmas" },
-          { href: "/pedagogia/relatorios", icon: FileText, label: "Relatórios" },
-        ]
+  return [
+    ...baseItems,
+    { href: "/pedagogia/alunos", icon: Users, label: "Gestão de Alunos" },
+    { href: "/pedagogia/notas e faltas", icon: BarChart3, label: "Notas e Faltas" },
+    { href: "/pedagogia/turmas", icon: BookOpen, label: "Turmas" },
+    { href: "/pedagogia/relatorios", icon: FileText, label: "Relatórios" },
+  ]
       default:
         return baseItems
     }

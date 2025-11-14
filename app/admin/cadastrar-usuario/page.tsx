@@ -18,7 +18,6 @@ export default function CadastroPage() {
     confirmPassword: "",
     tipo: "",
   })
-
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
@@ -28,7 +27,7 @@ export default function CadastroPage() {
     setIsLoading(true)
     setError("")
 
-    // Validações
+    // Validações básicas
     if (formData.password !== formData.confirmPassword) {
       setError("As senhas não coincidem")
       setIsLoading(false)
@@ -48,23 +47,26 @@ export default function CadastroPage() {
     }
 
     try {
+      // Cadastro simples - só cria o usuário no Auth
       await signUp(formData.email, formData.password, {
         nome: formData.nome,
         tipo: formData.tipo
       })
 
+      // Se chegou aqui, deu certo
       router.push("/login?message=Cadastro realizado com sucesso! Faça login.")
+
     } catch (error: any) {
-      console.error("Erro no cadastro:", error)
-      setError(error.message || "Erro ao criar conta. Tente novamente.")
+      console.error('Erro no cadastro:', error)
+      setError(error.message || 'Erro ao criar conta. Tente novamente.')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <GraduationCap className="h-12 w-12 text-blue-600" />
@@ -74,36 +76,31 @@ export default function CadastroPage() {
             Crie sua conta para acessar o sistema
           </CardDescription>
         </CardHeader>
-
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
                 {error}
               </div>
             )}
-
+            
             <div className="space-y-2">
               <Label htmlFor="nome">Nome Completo</Label>
               <Input
                 id="nome"
                 placeholder="Seu nome completo"
                 value={formData.nome}
-                onChange={(e) => {
-                  const filtered = e.target.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, "")
-                  setFormData({ ...formData, nome: filtered })
-                }}
+                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                 required
                 disabled={isLoading}
-                maxLength={50}
+                maxLength={50} 
               />
-              <div className={`text-xs text-right ${
-                formData.nome.length === 50 ? "text-red-500" :
-                formData.nome.length > 45 ? "text-orange-500" : "text-gray-500"
-              }`}>
+                <div className={`text-xs text-right ${
+                formData.nome.length == 50 ? 'text-red-500' :
+                formData.nome.length > 45 ? 'text-orange-500' : 'text-gray-500'
+                }`}>
                 {formData.nome.length}/50 caracteres
-              </div>
+  </div>
             </div>
 
             <div className="space-y-2">
@@ -120,12 +117,8 @@ export default function CadastroPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Tipo de Usuário</Label>
-              <Select
-                value={formData.tipo}
-                onValueChange={(v) => setFormData({ ...formData, tipo: v })}
-                disabled={isLoading}
-              >
+              <Label htmlFor="tipo">Tipo de Usuário</Label>
+              <Select onValueChange={(value) => setFormData({ ...formData, tipo: value })} disabled={isLoading}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
@@ -143,13 +136,19 @@ export default function CadastroPage() {
               <Input
                 id="password"
                 type="password"
-                value={formData.password}
                 placeholder="Mínimo 6 caracteres"
-                maxLength={12}
+                value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
                 disabled={isLoading}
+                maxLength={12}
               />
+              <div className={`text-xs text-right ${
+                formData.password.length == 12 ? 'text-red-500' :
+                formData.password.length > 10 ? 'text-orange-500' : 'text-gray-500'
+                }`}>
+                {formData.password.length}/12 caracteres
+            </div>
             </div>
 
             <div className="space-y-2">
@@ -157,29 +156,36 @@ export default function CadastroPage() {
               <Input
                 id="confirmPassword"
                 type="password"
-                value={formData.confirmPassword}
                 placeholder="Digite novamente sua senha"
-                maxLength={12}
+                value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 required
                 disabled={isLoading}
+                maxLength={12}
               />
+              <div className={`text-xs text-right ${
+                formData.confirmPassword.length == 12 ? 'text-red-500' :
+                formData.confirmPassword.length > 10 ? 'text-orange-500' : 'text-gray-500' 
+                }`}>
+                {formData.confirmPassword.length}/12 caracteres
+              </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isLoading}
+            >
               {isLoading ? "Criando conta..." : "Criar Conta"}
             </Button>
 
             <div className="text-center text-sm text-gray-600">
-              Já tem conta?{" "}
-              <a href="/login" className="text-blue-600 hover:underline">
-                Faça login
-              </a>
+              <p>Já tem conta? <a href="/login" className="text-blue-600 hover:underline">Faça login</a></p>
             </div>
-
           </form>
         </CardContent>
       </Card>
     </div>
+    //teste 2
   )
 }

@@ -222,7 +222,7 @@ export default function RelatoriosPage() {
   }
 
   return (
-    <DashboardLayout userType="admin">
+    <DashboardLayout userType="pedagogia">
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>

@@ -6,19 +6,19 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { signUp } from "@/lib/supabase/auth"
+import { createAluno } from "@/lib/supabase/database"
 import { GraduationCap } from "lucide-react"
 
-export default function CadastroPage() {
+export default function CadastroAlunoPage() {
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
     password: "",
     confirmPassword: "",
-    tipo: "",
+    matricula: "",
+    turma: "",
   })
-
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
@@ -41,69 +41,92 @@ export default function CadastroPage() {
       return
     }
 
-    if (!formData.tipo) {
-      setError("Selecione um tipo de usuário")
+    if (!formData.matricula) {
+      setError("Matrícula é obrigatória")
+      setIsLoading(false)
+      return
+    }
+
+    if (!formData.turma) {
+      setError("Turma é obrigatória")
       setIsLoading(false)
       return
     }
 
     try {
-      await signUp(formData.email, formData.password, {
-        nome: formData.nome,
-        tipo: formData.tipo
-      })
+  // 1. Criar usuário no Auth
+  const authData = await signUp(formData.email, formData.password, {
+    nome: formData.nome,
+    tipo: "aluno"
+  })
 
-      router.push("/login?message=Cadastro realizado com sucesso! Faça login.")
-    } catch (error: any) {
-      console.error("Erro no cadastro:", error)
-      setError(error.message || "Erro ao criar conta. Tente novamente.")
-    } finally {
-      setIsLoading(false)
-    }
+  console.log('🔍 DEBUG - Auth Data:', authData)
+  console.log('🔍 DEBUG - User ID:', authData.user?.id)
+
+  if (!authData.user?.id) {
+    throw new Error('ID do usuário não foi retornado pelo processo de autenticação')
+  }
+
+  // 2. Criar aluno na tabela alunos
+  await createAluno({
+    matricula: formData.matricula,
+    nome: formData.nome,
+    turma: formData.turma,
+    nota1: 0,
+    nota2: 0,
+    nota3: 0,
+    user_id: authData.user.id  // ✅ Agora a função createAluno aceita user_id
+  })
+
+  // Sucesso
+  router.push("/login?message=Aluno cadastrado com sucesso! Faça login.")
+
+} catch (error: any) {
+  console.error('❌ Erro no cadastro:', error)
+  setError(error.message || 'Erro ao cadastrar aluno.')
+} finally {
+  setIsLoading(false)
+}
+
+  }
+  
+  const handleChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <GraduationCap className="h-12 w-12 text-blue-600" />
           </div>
-          <CardTitle className="text-2xl font-bold">SIGA - Cadastro</CardTitle>
+          <CardTitle className="text-2xl font-bold">Cadastro de Aluno</CardTitle>
           <CardDescription>
-            Crie sua conta para acessar o sistema
+            Preencha os dados para criar uma conta de aluno
           </CardDescription>
         </CardHeader>
-
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
                 {error}
               </div>
             )}
-
+            
             <div className="space-y-2">
               <Label htmlFor="nome">Nome Completo</Label>
               <Input
                 id="nome"
                 placeholder="Seu nome completo"
                 value={formData.nome}
-                onChange={(e) => {
-                  const filtered = e.target.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, "")
-                  setFormData({ ...formData, nome: filtered })
-                }}
+                onChange={(e) => handleChange('nome', e.target.value)}
                 required
                 disabled={isLoading}
-                maxLength={50}
               />
-              <div className={`text-xs text-right ${
-                formData.nome.length === 50 ? "text-red-500" :
-                formData.nome.length > 45 ? "text-orange-500" : "text-gray-500"
-              }`}>
-                {formData.nome.length}/50 caracteres
-              </div>
             </div>
 
             <div className="space-y-2">
@@ -113,29 +136,34 @@ export default function CadastroPage() {
                 type="email"
                 placeholder="seu@email.com"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) => handleChange('email', e.target.value)}
                 required
                 disabled={isLoading}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Tipo de Usuário</Label>
-              <Select
-                value={formData.tipo}
-                onValueChange={(v) => setFormData({ ...formData, tipo: v })}
+              <Label htmlFor="matricula">Matrícula</Label>
+              <Input
+                id="matricula"
+                placeholder="Número de matrícula"
+                value={formData.matricula}
+                onChange={(e) => handleChange('matricula', e.target.value)}
+                required
                 disabled={isLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="aluno">Aluno</SelectItem>
-                  <SelectItem value="professor">Professor</SelectItem>
-                  <SelectItem value="admin">Administrador</SelectItem>
-                  <SelectItem value="pedagogia">Pedagogia</SelectItem>
-                </SelectContent>
-              </Select>
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="turma">Turma</Label>
+              <Input
+                id="turma"
+                placeholder="Ex: 1A, 2B, etc."
+                value={formData.turma}
+                onChange={(e) => handleChange('turma', e.target.value)}
+                required
+                disabled={isLoading}
+              />
             </div>
 
             <div className="space-y-2">
@@ -143,10 +171,9 @@ export default function CadastroPage() {
               <Input
                 id="password"
                 type="password"
-                value={formData.password}
                 placeholder="Mínimo 6 caracteres"
-                maxLength={12}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                value={formData.password}
+                onChange={(e) => handleChange('password', e.target.value)}
                 required
                 disabled={isLoading}
               />
@@ -157,26 +184,26 @@ export default function CadastroPage() {
               <Input
                 id="confirmPassword"
                 type="password"
-                value={formData.confirmPassword}
                 placeholder="Digite novamente sua senha"
-                maxLength={12}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                value={formData.confirmPassword}
+                onChange={(e) => handleChange('confirmPassword', e.target.value)}
                 required
                 disabled={isLoading}
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Criando conta..." : "Criar Conta"}
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isLoading}
+            >
+              {isLoading ? "Cadastrando..." : "Cadastrar Aluno"}
             </Button>
 
             <div className="text-center text-sm text-gray-600">
-              Já tem conta?{" "}
-              <a href="/login" className="text-blue-600 hover:underline">
-                Faça login
-              </a>
+              <p>Já tem conta? <a href="/login" className="text-blue-600 hover:underline">Faça login</a></p>
+              <p>É professor? <a href="/cadastro/professor" className="text-blue-600 hover:underline">Cadastre-se aqui</a></p>
             </div>
-
           </form>
         </CardContent>
       </Card>
