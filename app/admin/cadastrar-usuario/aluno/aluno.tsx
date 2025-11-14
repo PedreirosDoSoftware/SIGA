@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { signUp } from "@/lib/supabase/auth"
 import { createAluno } from "@/lib/supabase/database"
 import { GraduationCap } from "lucide-react"
-
+//pagian teste
 export default function CadastroAlunoPage() {
   const [formData, setFormData] = useState({
     nome: "",
