@@ -8,15 +8,15 @@ export default function HomePage() {
       <div className="max-w-4xl w-full text-center space-y-8">
         <div className="flex items-center justify-center gap-4 mb-8">
           <GraduationCap className="h-16 w-16 text-blue-600 animate-bounce" />
-          <h1 className="text-6xl font-bold text-slate-800">SIGA</h1>
+          <h1 className="text-6xl font-bold text-slate-700">PERSEVERA</h1>
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-3xl font-semibold text-slate-700">SISTEMA INTELIGENTE</h2>
-          <h3 className="text-2xl font-medium text-slate-600">DE GESTÃO ACADÊMICA</h3>
+          <h2 className="text-xl font-semibold text-slate-600">TRANSFORMANDO OBSTÁCULOS</h2>
+          <h3 className="text-xl font-medium text-slate-500">EM OPORTUNIDADES</h3>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-12">
+        <div className="flex flex-col sm:flex-row gap-6 items-center mt-12 w-full justify-center">
           <Link href="/login">
             <Button size="lg" className="w-48 h-16 text-lg flex flex-col gap-2">
               <LogIn className="h-6 w-6" />
