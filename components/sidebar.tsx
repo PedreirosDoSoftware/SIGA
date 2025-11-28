@@ -107,7 +107,7 @@ export function Sidebar({ userType }: SidebarProps) {
           {/* Logo */}
           <div className="flex items-center gap-3 p-4 border-b border-slate-700">
             <GraduationCap className="h-8 w-8 text-blue-400 flex-shrink-0" />
-            {!isCollapsed && <h1 className="text-xl font-bold">SIGA</h1>}
+            {!isCollapsed && <h1 className="text-xl font-bold">PERSEVERA</h1>}
           </div>
 
           {/* Navigation */}

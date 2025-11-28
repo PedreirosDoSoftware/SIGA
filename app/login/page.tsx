@@ -64,7 +64,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-4">
             <GraduationCap className="h-12 w-12 text-blue-600" />
           </div>
-          <CardTitle className="text-2xl font-bold">SIGA - Login</CardTitle>
+          <CardTitle className="text-2xl font-bold">PERSEVERA - Login</CardTitle>
           <CardDescription>
             Entre com suas credenciais para acessar o sistema
           </CardDescription>

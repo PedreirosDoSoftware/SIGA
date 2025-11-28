@@ -69,7 +69,7 @@ export default function CadastroPage() {
           <div className="flex justify-center mb-4">
             <GraduationCap className="h-12 w-12 text-blue-600" />
           </div>
-          <CardTitle className="text-2xl font-bold">SIGA - Cadastro</CardTitle>
+          <CardTitle className="text-2xl font-bold">PERSEVERA - Cadastro</CardTitle>
           <CardDescription>
             Crie sua conta para acessar o sistema
           </CardDescription>
